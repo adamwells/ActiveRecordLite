@@ -10,30 +10,48 @@ class AssocOptions
   )
 
   def model_class
-    # ...
+    class_name.constantize
   end
 
   def table_name
-    # ...
+    if @name == 'human'
+      'humans'
+    else
+      @name.tableize
+    end
   end
 end
 
 class BelongsToOptions < AssocOptions
   def initialize(name, options = {})
-    # ...
+    @name = name
+    @options = options
+    @options[:foreign_key] ||= "#{name}_id".to_sym
+    @options[:primary_key] ||= :id
+    @options[:class_name] ||= name.camelcase
+    @options.each do |key, value|
+      instance_variable_set("@#{key}", value)
+    end
   end
 end
 
 class HasManyOptions < AssocOptions
   def initialize(name, self_class_name, options = {})
-    # ...
+    @name = name
+    @options = options
+    @options[:foreign_key] ||= "#{self_class_name.underscore}_id".to_sym
+    @options[:primary_key] ||= :id
+    @options[:class_name] ||= name.camelcase.singularize
+    @options.each do |key, value|
+      instance_variable_set("@#{key}", value)
+    end
   end
 end
 
 module Associatable
   # Phase IIIb
   def belongs_to(name, options = {})
-    # ...
+    
   end
 
   def has_many(name, options = {})
@@ -47,4 +65,5 @@ end
 
 class SQLObject
   # Mixin Associatable here...
+  include Associatable
 end
