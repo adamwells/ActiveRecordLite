@@ -93,15 +93,33 @@ class SQLObject
         #{self.class.table_name} (#{@attributes.keys.join(', ')})
       VALUES
         (#{sanitize})
-
     SQL
+
+    self.id = DBConnection.last_insert_row_id
   end
 
   def update
-    # ...
+    set_string = []
+    @attributes.keys.each do |key|
+      set_string << "#{key} = ?"
+    end
+
+
+    DBConnection.execute(<<-SQL, *attribute_values)
+      UPDATE
+        #{self.class.table_name}
+      SET
+        #{set_string.join(', ')}
+      WHERE
+        id = #{self.id}
+    SQL
   end
 
   def save
-    # ...
+    unless @attributes && !@attributes[:id].nil?
+      insert
+    else
+      update
+    end
   end
 end
