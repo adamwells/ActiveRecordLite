@@ -32,34 +32,34 @@ class BelongsToOptions < AssocOptions
     @options.each do |key, value|
       instance_variable_set("@#{key}", value)
     end
+  end
 
-    def table_name
-      problem_names = ["Human"]
-      unless problem_names.include?(@options[:class_name])
-        return @options[:class_name].underscore.pluralize
-      else
-        case @options[:class_name]
-        when 'Human'
-          return 'humans'
-        end
+  def table_name
+    problem_names = ["Human"]
+    unless problem_names.include?(@options[:class_name])
+      return @options[:class_name].underscore.pluralize
+    else
+      case @options[:class_name]
+      when 'Human'
+        return 'humans'
       end
     end
+  end
 
-    def model_class
-      @options[:class_name].constantize
-    end
+  def model_class
+    @options[:class_name].constantize
+  end
 
-    def foreign_key
-      @options[:foreign_key]
-    end
+  def foreign_key
+    @options[:foreign_key]
+  end
 
-    def primary_key
-      @options[:primary_key]
-    end
+  def primary_key
+    @options[:primary_key]
+  end
 
-    def class_name
-      @options[:class_name]
-    end
+  def class_name
+    @options[:class_name]
   end
 end
 
@@ -73,34 +73,34 @@ class HasManyOptions < AssocOptions
     @options.each do |key, value|
       instance_variable_set("@#{key}", value)
     end
+  end
 
-    def table_name
-      problem_names = ["human"]
-      unless problem_names.include?(@options[:class_name])
-        return @options[:class_name].underscore.pluralize
-      else
-        case @options[:class_name]
-        when 'Human'
-          return 'humans'
-        end
+  def table_name
+    problem_names = ["human"]
+    unless problem_names.include?(@options[:class_name])
+      return @options[:class_name].underscore.pluralize
+    else
+      case @options[:class_name]
+      when 'Human'
+        return 'humans'
       end
     end
+  end
 
-    def model_class
-      @options[:class_name].constantize
-    end
+  def model_class
+    @options[:class_name].constantize
+  end
 
-    def foreign_key
-      @options[:foreign_key]
-    end
+  def foreign_key
+    @options[:foreign_key]
+  end
 
-    def primary_key
-      @options[:primary_key]
-    end
+  def primary_key
+    @options[:primary_key]
+  end
 
-    def class_name
-      @options[:class_name]
-    end
+  def class_name
+    @options[:class_name]
   end
 end
 
@@ -108,6 +108,7 @@ module Associatable
   # Phase IIIb
   def belongs_to(name, options = {})
     options = BelongsToOptions.new(name, options)
+    assoc_options[name] = options
     define_method(name) do
       return options.model_class.where({options.primary_key => self.send(options.foreign_key)}).first
     end
@@ -115,13 +116,15 @@ module Associatable
 
   def has_many(name, options = {})
     options = HasManyOptions.new(name, self.name, options)
+    assoc_options[name] = options
     define_method(name) do
       return options.model_class.where({options.foreign_key => self.send(options.primary_key)})
     end
   end
 
   def assoc_options
-    # Wait to implement this in Phase IVa. Modify `belongs_to`, too.
+    @assoc_options ||= {}
+    @assoc_options
   end
 end
 
