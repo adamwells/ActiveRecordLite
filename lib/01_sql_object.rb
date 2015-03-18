@@ -5,6 +5,7 @@ require_relative '02_searchable'
 # of this project. It was only a warm up.
 
 class SQLObject
+
   def self.columns
     self_with_columns = DBConnection.execute2(<<-SQL)
       SELECT
@@ -30,7 +31,11 @@ class SQLObject
   end
 
   def self.table_name=(table_name)
-    @table_name = table_name
+    unless table_name == 'humen'
+      @table_name = table_name
+    else
+      @table_name = 'humans'
+    end
   end
 
   def self.table_name
